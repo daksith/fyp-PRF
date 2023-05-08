@@ -114,6 +114,3 @@ class LVT_Mem extends Module {
   printf(p"${io.R1} ${io.R2} ${io.R3}\n")
 }
 
-object Verilog extends App {
-  (new chisel3.stage.ChiselStage).emitVerilog(new LVT_Mem)
-}

@@ -94,6 +94,45 @@ class PRF extends Module {
   toStore.rs2Data := prf.io.R3.data
 
   // valid and branchmask logic
-  
+  val toExec_valid = RegInit(false.B)
+  val toStore_valid = RegInit(false.B)
+
+  val toExec_mask = RegInit(0.U(4.W))
+  val toStore_mask = RegInit(0.U(4.W))
+
+  when (branchCheck.valid){
+    //pass case
+    when (branchCheck.pass){
+      toExec_valid := execRead.valid
+      toExec_mask := branchCheck.branchmask ^ execRead.branchmask
+
+      toStore_valid := fromStore.valid
+      toStore_mask := branchCheck.branchmask ^ fromStore.branchmask
+    }.otherwise{
+      // fail case
+      toExec_valid := (branchCheck.branchmask & execRead.branchmask) === 0.U
+      toExec_mask := execRead.branchmask
+
+      toStore_valid := (branchCheck.branchmask & fromStore.branchmask) === 0.U
+      toStore_mask := fromStore.branchmask
+    }
+  }.otherwise{
+    toExec_valid := execRead.valid
+    toExec_mask := execRead.branchmask
+
+    toStore_valid := fromStore.valid
+    toStore_mask := fromStore.branchmask
+  }
+
+  toExec.valid := toExec_valid
+  toExec.branchmask := toExec_mask
+
+  toStore.valid := toStore_valid
+  toStore.branchmask := toStore_mask
 
 }
+
+object Verilog extends App {
+  (new chisel3.stage.ChiselStage).emitVerilog(new PRF)
+}
+
