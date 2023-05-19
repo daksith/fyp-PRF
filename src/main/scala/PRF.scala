@@ -41,15 +41,12 @@ class checkBranch extends Bundle {
   val valid = Input(Bool())
 }
 
-class PRF extends Module {
+class PRF(depth: Int,width: Int) extends lvtPorts(width: Int, depth: Int)  {
 
   /* IO definitions here*/
 
   // writeports
-  val w1 = IO(new writePort)
-  val w2 = IO(new writePort)
-  val w3 = IO(new writePort)
-  val w4 = IO(new writePort)
+  val writePorts = IO(Vec(4,new writePort))
 
   // exec IO
   val execRead = IO(new execRead)
@@ -65,13 +62,10 @@ class PRF extends Module {
   /* Logic here */
 
   // The LVT based memory
-  val prf = Module(new LVT_Mem)
+  val prf = Module(new LVT_Mem(depth, width, nr = 3, nw = 4))
 
   // connect writeports
-  prf.io.W1 <> w1
-  prf.io.W2 <> w2
-  prf.io.W3 <> w3
-  prf.io.W4 <> w4
+  prf.writePorts.zipWithIndex.foreach(c => c._1 <> writePorts(c._2))
 
   // Buffer signals
   toExec.robAddr := RegNext(execRead.robAddr)
@@ -81,17 +75,18 @@ class PRF extends Module {
   toStore.instruction := RegNext(fromStore.instruction)
 
   // Get Data from PRF
-  prf.io.R1.en := execRead.valid
-  prf.io.R1.addr := execRead.rs1Addr
-  toExec.rs1Data := prf.io.R1.data
 
-  prf.io.R2.en := execRead.valid
-  prf.io.R2.addr := execRead.rs2Addr
-  toExec.rs2Data := prf.io.R2.data
+  prf.readPorts(0).en := execRead.valid
+  prf.readPorts(0).addr := execRead.rs1Addr
+  toExec.rs1Data := prf.readPorts(0).data
 
-  prf.io.R3.en := fromStore.valid
-  prf.io.R3.addr := fromStore.rs2Addr
-  toStore.rs2Data := prf.io.R3.data
+  prf.readPorts(1).en := execRead.valid
+  prf.readPorts(1).addr := execRead.rs2Addr
+  toExec.rs2Data := prf.readPorts(1).data
+
+  prf.readPorts(2).en := fromStore.valid
+  prf.readPorts(2).addr := fromStore.rs2Addr
+  toStore.rs2Data := prf.readPorts(2).data
 
   // valid and branchmask logic
   val toExec_valid = RegInit(false.B)
@@ -133,6 +128,5 @@ class PRF extends Module {
 }
 
 object Verilog extends App {
-  (new chisel3.stage.ChiselStage).emitVerilog(new PRF)
+  (new chisel3.stage.ChiselStage).emitVerilog(new PRF(64,64))
 }
-

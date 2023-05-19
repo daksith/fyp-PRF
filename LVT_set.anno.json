@@ -2,19 +2,19 @@
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~LVT_set|ReadWriteSmem",
-    "duplicate":"~LVT_set|LVT_set/b1:ReadWriteSmem",
+    "duplicate":"~LVT_set|LVT_set/blocks_0:ReadWriteSmem",
     "index":0.0
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~LVT_set|ReadWriteSmem_1",
-    "duplicate":"~LVT_set|LVT_set/b2:ReadWriteSmem",
+    "duplicate":"~LVT_set|LVT_set/blocks_1:ReadWriteSmem",
     "index":0.3333333333333333
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~LVT_set|ReadWriteSmem_2",
-    "duplicate":"~LVT_set|LVT_set/b3:ReadWriteSmem",
+    "duplicate":"~LVT_set|LVT_set/blocks_2:ReadWriteSmem",
     "index":0.6666666666666666
   },
   {
